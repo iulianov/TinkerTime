@@ -1,3 +1,19 @@
 language: java
 jdk:
   - oraclejdk7
+
+env:
+  global:
+   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+   #   via the "travis encrypt" command using the project repo's public key
+   - secure: "NJPi3ix2iAN1YsSTDs6z/Ahl9pZbxK0Iifk4Oiqhp9s6eJz2/EPiJRg6A1T0RQz/3MSBOascAoTRzNCV5X6UM3aQCUGykolm4fM8xc064YvN/ZewaHlM5wGVbkR4/Y7IAb+j0k/tNcV4J7uVtu0PFI4iKZDiF4by0YCHiNqfyNo="
+
+addons:
+  coverity_scan:
+    project:
+      name: "oharaandrew314/TinkerTime"
+      description: "<Your project description here>"
+    notification_email: ohara.andrew314@gmail.com
+    build_command_prepend: "gradle clean"
+    build_command:   "gradle assemble"
+    branch_pattern: coverity_scan
