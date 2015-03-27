@@ -1,8 +1,12 @@
 package aohara.tinkertime.models;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import aohara.tinkertime.TinkerConfig;
 
@@ -15,18 +19,17 @@ import aohara.tinkertime.TinkerConfig;
  * 
  * @author Andrew O'Hara
  */
-public class Mod implements FileUpdateListener {
+public class Mod implements Comparable<Mod> {
 	
 	public final String id;
 	private Date updatedOn;
 	private String name, creator, supportedVersion, newestFileName;
-	private URL imageUrl, pageUrl;
-	private boolean enabled = false;
+	private URL pageUrl;
 	private transient boolean updateAvailable = false;
 	
 	public Mod(
 		String id, String modName, String newestFileName, String creator,
-		URL imageUrl, URL pageUrl, Date updatedOn, String supportedVersion
+		URL pageUrl, Date updatedOn, String supportedVersion
 	){
 		this.id = id;
 		this.newestFileName = newestFileName;
@@ -34,7 +37,6 @@ public class Mod implements FileUpdateListener {
 		this.pageUrl = pageUrl;
 		this.name = modName;
 		this.creator = creator;
-		this.imageUrl = imageUrl;
 		this.supportedVersion = supportedVersion;
 	}
 	
@@ -44,10 +46,6 @@ public class Mod implements FileUpdateListener {
 
 	public String getCreator() {
 		return creator;
-	}
-
-	public URL getImageUrl() {
-		return imageUrl;
 	}
 	
 	public String getNewestFileName() {
@@ -71,7 +69,11 @@ public class Mod implements FileUpdateListener {
 	}
 	
 	public Path getCachedZipPath(TinkerConfig config){
-		return getNewestFileName() != null ? config.getModsZipPath().resolve(getNewestFileName()) : null;
+		if (getNewestFileName() != null){
+			String safePathFileName = getNewestFileName().replaceAll(":", "").replaceAll("/", "");
+			return config.getModsZipPath().resolve(safePathFileName);
+		}
+		return null;
 	}
 	
 	public Path getCachedImagePath(TinkerConfig config){
@@ -86,18 +88,36 @@ public class Mod implements FileUpdateListener {
 		return supportedVersion;
 	}
 	
+	public boolean isUpdateable(){
+		return getPageUrl() != null;
+	}
+	
 	// -- Other Methods --------------------
-	
-	public boolean isEnabled(){
-		return enabled;
+
+	public boolean isEnabled(TinkerConfig config){
+		// Cannot decide if the mod is enabled if the zip is missing
+		if (!isDownloaded(config)){
+			return false;
+		}
+		
+		// Find all installed module names
+		Set<String> installedModuleNames = new HashSet<>();
+		for (File dirEntry : config.getGameDataPath().toFile().listFiles()){
+			installedModuleNames.add(dirEntry.getName());
+		}
+		
+		// If all modules in the mod are installed, then the mod is enabled
+		try {
+			return installedModuleNames.containsAll(
+				ModStructure.inspectArchive(config, this).getModuleNames()
+			);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 	
-	public void setEnabled(boolean enabled){
-		this.enabled = enabled;
-	}
-	
-	@Override
-	public void setUpdateAvailable(URL pageUrl, URL downloadLink, String newestFileName){
+	public void setUpdateAvailable(){
 		updateAvailable = true;
 	}
 	
@@ -117,6 +137,15 @@ public class Mod implements FileUpdateListener {
 	
 	@Override
 	public boolean equals(Object o){
-		return o instanceof Mod && ((Mod)o).id.equals(id);
+		if (o instanceof Mod){
+			Mod mod = (Mod) o;
+			return id.equals(mod.id) || getName().equals(mod.getName());
+		}
+		return false;
+	}
+
+	@Override
+	public int compareTo(Mod other) {
+		return id.compareTo(other.id);
 	}
 }

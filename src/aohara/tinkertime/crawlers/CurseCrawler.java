@@ -4,9 +4,10 @@ import java.io.IOException;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedList;
 
-import org.apache.commons.io.FilenameUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
@@ -34,27 +35,6 @@ public class CurseCrawler extends Crawler<Document> {
 		} catch (ParseException e) {
 			throw new IOException(e.getMessage());
 		}
-	}
-	
-	@Override
-	public String getNewestFileName() throws IOException{
-		Document mainPage = getPage(getApiUrl());
-		Element ele = mainPage.getElementById("project-overview");
-		ele = ele.getElementsContainingOwnText("Newest File").first();
-		return ele.text().split(":")[1].trim();
-	}
-	
-	@Override
-	public URL getDownloadLink() throws IOException{
-		// Get Download Page Link
-		Document mainPage = getPage(getApiUrl());
-		String downloadPageLink = mainPage.select("ul.regular-dl a").first().absUrl("href");
-		URL downloadPageUrl = new URL(downloadPageLink);
-		
-		// Get Mod Download Link from Download Page
-		Document downloadPage = getPage(downloadPageUrl);
-		String downloadLink = downloadPage.select("a.download-link").first().absUrl("data-href");
-		return new URL(downloadLink.replace(" ", "%20"));
 	}
 
 	@Override
@@ -85,7 +65,36 @@ public class CurseCrawler extends Crawler<Document> {
 	}
 
 	@Override
-	public String generateId() {
-		return FilenameUtils.getBaseName(getApiUrl().getPath());
+	protected Collection<Asset> getNewestAssets() throws IOException {
+		Document mainPage = getPage(getApiUrl());
+		
+		// Get File Name From Main Page
+		Element ele = mainPage.getElementById("project-overview");
+		ele = ele.getElementsContainingOwnText("Newest File").first();
+		
+		// Add zip extension to filename if author did not add it
+		String fileName = ele.text().split(":")[1].trim();
+		if (!fileName.toLowerCase().endsWith(".zip")){
+			fileName += ".zip";
+		}
+		
+		// Get Download Page Link
+		String downloadPageLink = mainPage.select("ul.regular-dl a").first().absUrl("href");
+		URL downloadPageUrl = new URL(downloadPageLink);
+		
+		// Get Mod Download Link from Download Page
+		Document downloadPage = getPage(downloadPageUrl);
+		String downloadLink = downloadPage.select("a.download-link").first().absUrl("data-href");
+		URL downloadUrl = new URL(downloadLink.replace(" ", "%20"));
+		
+		// Return Asset
+		Collection<Asset> assets = new LinkedList<>();
+		assets.add(new Asset(fileName, downloadUrl));
+		return assets;
+	}
+
+	@Override
+	public String getVersionString() throws IOException {
+		return null;
 	}
 }

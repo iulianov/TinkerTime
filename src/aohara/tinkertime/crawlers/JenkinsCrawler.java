@@ -1,8 +1,12 @@
 package aohara.tinkertime.crawlers;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedList;
 
 import aohara.tinkertime.crawlers.pageLoaders.PageLoader;
 
@@ -15,46 +19,40 @@ import com.google.gson.JsonObject;
  * 
  * @author Andrew O'Hara
  */
-public class JenkinsCrawler extends Crawler<JsonObject> {
+public class JenkinsCrawler extends Crawler<JsonElement> {
 	
 	private JsonObject cachedJson;
-	private final URL artifactDownloadUrl;
-	private final String name;
 	
-	public JenkinsCrawler(URL url, PageLoader<JsonObject> pageLoader, String name, URL artifactDownloadUrl) {
-		super(url, pageLoader);
-		this.name = name;
-		this.artifactDownloadUrl = artifactDownloadUrl;
+	public JenkinsCrawler(URL jenkinsUrl, PageLoader<JsonElement> pageLoader) throws MalformedURLException{
+		super(jenkinsUrl, pageLoader);
+	}
+	
+	@Override
+	public URL getApiUrl(){
+		try {
+			return new URL(String.format("%s/lastSuccessfulBuild/api/json", getPageUrl()));
+		} catch (MalformedURLException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private JsonObject getJson() throws IOException {
 		if (cachedJson == null){
-			cachedJson = getPage(getApiUrl());
+			cachedJson = getPage(getApiUrl()).getAsJsonObject();
 		}
 		return cachedJson;
 	}
 
 	@Override
-	public URL getDownloadLink() throws IOException {
-		return new URL(artifactDownloadUrl, getNewestFileName());
-	}
-
-	@Override
-	public String getNewestFileName() throws IOException {
-		JsonArray artifacts = getJson().get("artifacts").getAsJsonArray();
-		JsonObject dllArtifact = artifacts.get(artifacts.size() - 1).getAsJsonObject();
-		return dllArtifact.get("relativePath").getAsString();
-	}
-
-	@Override
 	public Date getUpdatedOn() throws IOException {
 		long timestamp = getJson().get("timestamp").getAsLong();
-		return new Date(timestamp);
-	}
-
-	@Override
-	public String generateId() {
-		return getApiUrl().getHost();
+		
+		// ignore milliseconds
+		Calendar cal = Calendar.getInstance();
+		cal.setTimeInMillis(timestamp);
+		cal.set(Calendar.MILLISECOND, 0);
+		
+		return cal.getTime();
 	}
 
 	@Override
@@ -63,26 +61,17 @@ public class JenkinsCrawler extends Crawler<JsonObject> {
 	}
 
 	@Override
-	public String getName() throws IOException {
-		return name;
-	}
-	
-	@Override
-	public boolean isSuccesful(){
-		try {
-			String result = getJson().get("result").getAsString();
-			return result != null && result.toLowerCase().equals("success");
-		} catch (IOException e) {
-			return false;
+	public String getName() {
+		String jobName = getPageUrl().getPath().split("job/")[1];
+		if (jobName.contains("/")){
+			jobName = jobName.split("/")[0];
 		}
+		return jobName;
 	}
 
 	@Override
 	public String getCreator() throws IOException {
-		for (JsonElement culprit : getJson().get("culprits").getAsJsonArray()){
-			return culprit.getAsJsonObject().get("fullName").getAsString();
-		}
-		return null;
+		return getPageUrl().getHost();
 	}
 
 	@Override
@@ -90,4 +79,24 @@ public class JenkinsCrawler extends Crawler<JsonObject> {
 		return null;
 	}
 
+	@Override
+	protected Collection<Asset> getNewestAssets() throws IOException {
+		Collection<Asset> assets = new LinkedList<>();
+		
+		JsonArray artifacts = getJson().get("artifacts").getAsJsonArray();
+		JsonObject dllArtifact = artifacts.get(artifacts.size() - 1).getAsJsonObject();
+		String fileName = dllArtifact.get("relativePath").getAsString();
+		
+		assets.add(new Asset(
+			fileName,
+			new URL(String.format("%s/lastSuccessfulBuild/artifact/%s", getPageUrl(), fileName))
+		));
+		
+		return assets;
+	}
+
+	@Override
+	public String getVersionString() throws IOException {
+		return getJson().get("number").getAsString();
+	}
 }

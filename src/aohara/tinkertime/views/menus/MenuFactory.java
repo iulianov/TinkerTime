@@ -14,35 +14,40 @@ public class MenuFactory {
 		JToolBar toolBar = new JToolBar();
 		toolBar.setFloatable(false);
 		
-		toolBar.add(new Actions.OptionsAction(toolBar, mm));
+		toolBar.add(new Actions.LaunchKspAction(toolBar, mm)).setFocusPainted(false);
 		
 		toolBar.addSeparator();
 		
-		toolBar.add(new Actions.AddModAction(toolBar, mm));
-		toolBar.add(new Actions.AddModZip(toolBar, mm));
-		toolBar.add(new Actions.EnableDisableModAction(toolBar, mm));
-		toolBar.add(new Actions.DeleteModAction(toolBar, mm));
+		toolBar.add(new Actions.OptionsAction(toolBar, mm)).setFocusPainted(false);
+		
+		toolBar.addSeparator();
+		
+		toolBar.add(new Actions.AddModAction(toolBar, mm)).setFocusPainted(false);
+		toolBar.add(new Actions.AddModZip(toolBar, mm)).setFocusPainted(false);
+		toolBar.add(new Actions.DeleteModAction(toolBar, mm)).setFocusPainted(false);
+		
+		toolBar.addSeparator();
+		
+		toolBar.add(new Actions.EnableDisableModAction(toolBar, mm)).setFocusPainted(false);
 
 		toolBar.addSeparator();
 		
-		toolBar.add(new Actions.UpdateModAction(toolBar, mm));
-		toolBar.add(new Actions.CheckforUpdatesAction(toolBar, mm));
+		toolBar.add(new Actions.UpdateModAction(toolBar, mm)).setFocusPainted(false);
+		toolBar.add(new Actions.CheckforUpdatesAction(toolBar, mm)).setFocusPainted(false);
 
 		toolBar.addSeparator();
 		
-		toolBar.add(new Actions.AboutAction(toolBar, mm));
-		toolBar.add(new Actions.HelpAction(toolBar, mm));
-		toolBar.add(new Actions.ContactAction(toolBar, mm));
+		toolBar.add(new Actions.HelpAction(toolBar, mm)).setFocusPainted(false);
 		
 		return toolBar;
 	}
 	
-	public static JMenuBar creatMenuBar(ModManager mm){
+	public static JMenuBar createMenuBar(ModManager mm){
 		JMenuBar menuBar = new JMenuBar();
 		
 		JMenu fileMenu = new JMenu("File");
+		fileMenu.add(new JMenuItem(new Actions.LaunchKspAction(menuBar, mm)));
 		fileMenu.add(new JMenuItem(new Actions.OptionsAction(menuBar, mm)));
-		fileMenu.add(new JMenuItem(new Actions.ExportModList(menuBar, mm)));
 		fileMenu.add(new JMenuItem(new Actions.ExitAction(menuBar, mm)));
 		menuBar.add(fileMenu);
 		
@@ -59,6 +64,11 @@ public class MenuFactory {
 		updateMenu.add(new JMenuItem(new Actions.CheckforUpdatesAction(menuBar, mm)));
 		updateMenu.add(new JMenuItem(new Actions.UpdateTinkerTime(menuBar, mm)));
 		menuBar.add(updateMenu);
+		
+		JMenu importExportMenu = new JMenu("Import/Export Mods");
+		importExportMenu.add(new JMenuItem(new Actions.ExportMods(menuBar, mm)));
+		importExportMenu.add(new JMenuItem(new Actions.ImportMods(menuBar, mm)));
+		menuBar.add(importExportMenu);
 		
 		JMenu helpMenu = new JMenu("Help");
 		helpMenu.add(new JMenuItem(new Actions.AboutAction(menuBar, mm)));

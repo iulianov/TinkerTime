@@ -1,18 +1,22 @@
 package aohara.tinkertime.models;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.apache.commons.io.IOUtils;
 
+import aohara.common.tree.FileNode;
+import aohara.common.tree.TreeNode;
+import aohara.common.tree.zip.ZipTreeBuilder;
 import aohara.tinkertime.TinkerConfig;
-import thirdParty.ZipNode;
 
 /**
  * Model for discovering and reporting the structure of a Mod Zip File.
@@ -25,25 +29,26 @@ import thirdParty.ZipNode;
  */
 public class ModStructure {
 	
-	public final String readmeText;
-	private final Set<ZipNode> modules;
+	private final Set<TreeNode> modules;
 	
-	public ModStructure(Set<ZipNode> modules, String readmeText){
+	private ModStructure(Set<TreeNode> modules){
 		this.modules = modules;
-		this.readmeText = readmeText;
 	}
 	
-	public boolean usesModule(ZipNode module){
-		for (ZipNode m : modules){
-			if (m.getName().equals(module.getName())){
-				return true;
-			}
+	public boolean usesModule(TreeNode module){
+		return modules.contains(module);
+	}
+	
+	public Set<TreeNode> getModules(){
+		return new HashSet<TreeNode>(modules);
+	}
+	
+	public Set<String> getModuleNames(){
+		Set<String> moduleNames = new LinkedHashSet<>();
+		for (TreeNode module : getModules()){
+			moduleNames.add(module.getName());
 		}
-		return false;
-	}
-	
-	public Set<ZipNode> getModules(){
-		return new HashSet<ZipNode>(modules);
+		return moduleNames;
 	}
 	
 	// Factory Methods
@@ -53,16 +58,21 @@ public class ModStructure {
 	}
 	
 	public static ModStructure inspectArchive(final Path zipPath) throws IOException {
-		try(ZipFile zipFile = new ZipFile(zipPath.toFile())){
-			ZipNode root = ZipNode.fromZipFile(zipFile); // Get structure of zip
-			
-			// Find GameData Path within zip
-			ZipNode gameData = getGameDataNode(root);
-			gameData = gameData != null ? gameData : root;
-			
-			// Discover structure
-			return new ModStructure(getModules(gameData), getReadmeText(zipFile));
+		if (!zipPath.toString().endsWith(".zip")){
+			Set<TreeNode> modules = new HashSet<>();
+			modules.add(new FileNode(zipPath.getFileName().toString()));
+			return new ModStructure(modules);
 		}
+		
+		
+		TreeNode root = new ZipTreeBuilder(zipPath).process();
+		
+		// Find GameData Path within zip
+		TreeNode gameData = getGameDataNode(root);
+		gameData = gameData != null ? gameData : root;
+		
+		// Discover structure
+		return new ModStructure(getModules(gameData));
 	}
 	
 	public static String getReadmeText(final TinkerConfig config, final Mod mod){
@@ -78,8 +88,8 @@ public class ModStructure {
 	private static String getReadmeText(final ZipFile zipFile){
 		for (ZipEntry entry : new HashSet<ZipEntry>(Collections.list(zipFile.entries()))){
 			if (!entry.isDirectory() && entry.getName().toLowerCase().contains("readme")){
-				try(StringWriter writer = new StringWriter()){
-					IOUtils.copy(zipFile.getInputStream(entry), writer);
+				try(StringWriter writer = new StringWriter(); InputStream is = zipFile.getInputStream(entry)){
+					IOUtils.copy(is, writer);
 					return writer.toString();
 				} catch (IOException e) {}
 			}
@@ -87,12 +97,12 @@ public class ModStructure {
 		return null;
 	}
 	
-	private static ZipNode getGameDataNode(final ZipNode zipNode){
-		if (zipNode.getName().toLowerCase().equals("gamedata/")){
+	private static TreeNode getGameDataNode(final TreeNode zipNode){
+		if (zipNode.getName().toLowerCase().equals("gamedata")){
 			return zipNode;
 		} else {
-			for (ZipNode child : zipNode.getChildren().values()){
-				ZipNode result = getGameDataNode(child);
+			for (TreeNode child : zipNode.getChildren()){
+				TreeNode result = getGameDataNode(child);
 				if (result != null){
 					return result;
 				}
@@ -101,12 +111,13 @@ public class ModStructure {
 		return null;
 	}
 
-	private static Set<ZipNode> getModules(final ZipNode gameDataNode){
-		Set<ZipNode> modules = new HashSet<>();
+	private static Set<TreeNode> getModules(final TreeNode gameDataNode){
+		Set<TreeNode> modules = new HashSet<>();
 		
-		for (ZipNode child : gameDataNode.getChildren().values()){
-			if (child.isDirectory()){
-				modules.add(child);
+		for (TreeNode module : gameDataNode.getChildren()){
+			if (module.isDir()){
+				module.makeRoot();
+				modules.add(module);
 			}
 		}
 		

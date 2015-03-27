@@ -14,7 +14,7 @@ sourceSets {
         }
         resources {
             srcDir 'res'
-             exclude('*/Thumbs.db')
+            exclude('*/Thumbs.db')
         }
     }
 
@@ -28,10 +28,6 @@ sourceSets {
     }
 }
 
-task unitTest( type: Test ) {
-    exclude 'test/integration/*'
-}
-
 compileJava {
   sourceCompatibility = '1.7'
   targetCompatibility = '1.7'
@@ -42,6 +38,7 @@ dependencies {
     compile 'commons-io:commons-io:2.4'
     compile 'com.google.code.gson:gson:2.3'
     compile 'org.jsoup:jsoup:1.7.3'
+    compile 'com.github.zafarkhaja:java-semver:0.8.0'
 
     testCompile 'org.hamcrest:hamcrest-all:1.3'
     testCompile 'org.mockito:mockito-all:1.9.5'
@@ -55,4 +52,11 @@ jar {
     manifest {
         attributes 'Main-Class': 'aohara.tinkertime.TinkerTime'
     }
+}
+
+task release(type:Zip,dependsOn:jar) {
+	jar.outputs.files.each {
+		from it.getPath()
+	}
+	from "readme.md"
 }

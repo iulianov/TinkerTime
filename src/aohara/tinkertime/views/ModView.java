@@ -1,8 +1,6 @@
 package aohara.tinkertime.views;
 
 import java.io.IOException;
-import java.net.URL;
-import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -48,7 +46,17 @@ public class ModView implements SelectorView<Mod, JPanel>, HyperlinkListener {
 		
 		if (mod != null){
 			// Set Border
-			panel.setBorder(BorderFactory.createTitledBorder(mod.getName() + " - by " + mod.getCreator()));
+			panel.setBorder(BorderFactory.createTitledBorder(mod.getName() + (mod.isUpdateable()? " - by " + mod.getCreator() : " - added from zip")));
+			
+			// Warning if non-updateable
+			if (!mod.isUpdateable()){
+				panel.add(new JLabel("<html><b>Warning:</b> Local File Only.  Not updateable.</html>"));
+			} else if(mod.isUpdateAvailable()) {
+				panel.add(new JLabel("<html><b>An update for this mod is available.</b></html>"));
+			}
+			
+			// Current Mod Version
+			panel.add(new JLabel("Mod Version: " + mod.getNewestFileName()));
 			
 			// Supported KSP Version
 			String kspVersion =  mod.getSupportedVersion();
@@ -59,13 +67,18 @@ public class ModView implements SelectorView<Mod, JPanel>, HyperlinkListener {
 			Date updatedOn = mod.getUpdatedOn();
 			updatedLabel.setText("Last Updated: " + (updatedOn != null ? DATE_FORMAT.format(updatedOn) : "N/A"));
 			panel.add(updatedLabel);
-			
+
 			// Mod Page Link
-			panel.add(new UrlPanel("Go to Mod Page", mod.getPageUrl()).getComponent());		
-			
+			panel.add(new UrlPanel(				
+				String.format(
+					"Go to Mod Page (on %s)",
+					mod.isUpdateable() ? mod.getPageUrl().getHost() : null
+				),
+				mod.getPageUrl()
+			).getComponent());
+
 			// Readme
-			Path zipPath = mod.getCachedImagePath(config);
-			if (zipPath != null && zipPath.toFile().exists()){
+			if (mod.isDownloaded(config)){
 				String readmeText = ModStructure.getReadmeText(config, mod);				
 				if (readmeText != null && !readmeText.trim().isEmpty()){
 					panel.add(new JLabel("<html><b>Readme:</b></html"));
@@ -95,16 +108,12 @@ public class ModView implements SelectorView<Mod, JPanel>, HyperlinkListener {
 	@Override
 	public void hyperlinkUpdate(HyperlinkEvent e) {
 		if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
-			goToHyperlink(e.getURL());
-        }
-	}
-	
-	private void goToHyperlink(URL url){
-        try {
-            Util.goToHyperlink(url);
-        } catch (IOException e1) {
-        	JOptionPane.showMessageDialog(
-        		panel, "Could not open hyperlink:\n" + url);
+			try {
+	            Util.goToHyperlink(e.getURL());
+	        } catch (IOException e1) {
+	        	JOptionPane.showMessageDialog(
+	        		panel, "Could not open hyperlink:\n" + e.getURL());
+	        }
         }
 	}
 }
