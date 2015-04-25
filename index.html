@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>Tinkertime by oharaandrew314</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>Tinkertime</h1>
+        <h2>Automatically Updating Mod Manager for Kerbal Space Program</h2>
+        <a href="https://github.com/oharaandrew314/TinkerTime" class="button"><small>View project on</small> GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h1>
+<a id="tinkertime" class="anchor" href="#tinkertime" aria-hidden="true"><span class="octicon octicon-link"></span></a>TinkerTime</h1>
+
+<p>Automatically Updating Mod Manager for Kerbal Space Program</p>
+
+<p>Master: <a href="https://travis-ci.org/oharaandrew314/TinkerTime"><img src="https://travis-ci.org/oharaandrew314/TinkerTime.svg?branch=master" alt="Build Status"></a></p>
+
+<h3>
+<a id="description" class="anchor" href="#description" aria-hidden="true"><span class="octicon octicon-link"></span></a>Description</h3>
+
+<p>Tinker Time is a Mod Manager for Kerbal Space Program that will allow you to automatically update, enable, and disable all of your mods.  All you have to do is enter the URL to the mod webpage, and Tinker Time will do the rest of the work for you.  It will even manage your ModuleManager Installation for you. :)</p>
+
+<h3>
+<a id="requirements" class="anchor" href="#requirements" aria-hidden="true"><span class="octicon octicon-link"></span></a>Requirements</h3>
+
+<ul>
+<li>
+<a href="https://java.com/en/download/index.jsp">Java 7</a> or better
+
+<ul>
+<li>OpenJDK is not supported, but it may work</li>
+</ul>
+</li>
+</ul>
+
+<h4>
+<a id="supported-mod-hosting-sites" class="anchor" href="#supported-mod-hosting-sites" aria-hidden="true"><span class="octicon octicon-link"></span></a>Supported Mod Hosting Sites</h4>
+
+<ul>
+<li>Curse</li>
+<li>Github (when compiled assets are released)</li>
+<li>KerbalStuff</li>
+</ul>
+
+<h3>
+<a id="downloads" class="anchor" href="#downloads" aria-hidden="true"><span class="octicon octicon-link"></span></a>Downloads</h3>
+
+<p>Please download the latest version from <a href="https://kerbalstuff.com/mod/243">KerbalStuff</a></p>
+
+<h3>
+<a id="wiki" class="anchor" href="#wiki" aria-hidden="true"><span class="octicon octicon-link"></span></a>Wiki</h3>
+
+<p>The <a href="https://github.com/oharaandrew314/TinkerTime/wiki">Tinker Time Wiki</a> contains many useful resources with instructions and known issues.</p>
+
+<h3>
+<a id="special-thanks" class="anchor" href="#special-thanks" aria-hidden="true"><span class="octicon octicon-link"></span></a>Special Thanks</h3>
+
+<ul>
+<li><p>Contributors (<a href="https://github.com/apemanzilla">apemanzilla</a>, <a href="https://github.com/grossws">grossws</a>)</p></li>
+<li><p>Beta Testers (<a href="https://github.com/foonix">foonix</a>, <a href="https://github.com/jcsntoll">jcsntoll</a>, and <a href="https://github.com/apemanzilla">apemanzilla</a>)</p></li>
+</ul>
+
+<h3>
+<a id="change-log" class="anchor" href="#change-log" aria-hidden="true"><span class="octicon octicon-link"></span></a>Change Log</h3>
+
+<h5>
+<a id="v20-planned" class="anchor" href="#v20-planned" aria-hidden="true"><span class="octicon octicon-link"></span></a>v2.0 (planned)</h5>
+
+<p>This major update is planned to feature a visual design overhaul, and .version file integration</p>
+
+<h5>
+<a id="v13" class="anchor" href="#v13" aria-hidden="true"><span class="octicon octicon-link"></span></a>v1.3</h5>
+
+<p>This update focuses on fixing annoyances, in order to provide a better general UX.
+A major refactor was done, reducing lines of code by an estimated 25%.</p>
+
+<h6>
+<a id="legacy-breaking-changes" class="anchor" href="#legacy-breaking-changes" aria-hidden="true"><span class="octicon octicon-link"></span></a>LEGACY BREAKING CHANGES:</h6>
+
+<ul>
+<li>
+<p>All configuration and mod data will not carry over to this version</p>
+
+<ul>
+<li>You can export your mods from the old version, and import them into the new (but this is not fully tested)</li>
+</ul>
+</li>
+<li>
+<p>New Features</p>
+
+<ul>
+<li>Add an options field to set KSP Launch Options</li>
+<li>Updating the options will no longer require an app restart</li>
+<li>Now scans the GameData directory to see which mods are enabled</li>
+<li>Now scrapes Github using the API, by default
+
+<ul>
+<li>If the API limit is reached, will fallback to the HTML scraper</li>
+</ul>
+</li>
+<li>Can now parse versions of mods and use those when checking for updates</li>
+<li>Progress bars will now appear immediately after launching a task, and their max progress will be set once it has been determined afterwards</li>
+<li>If an update for a mod is available, the "update" icon will not go away when you restart TinkerTime</li>
+</ul>
+</li>
+<li>Fixes
+
+<ul>
+<li>Mod file caches between KSP installations are now separate
+
+<ul>
+<li>This fixes issues when updating or deleting a mod in one installation, which would then affect the other</li>
+<li>Caches are now stored in a "TinkerTime" directory within your KSP installation</li>
+</ul>
+</li>
+<li>Options Window to have correct number of rows</li>
+<li>Right-click menu working on OSX due to removal of Nimbus UI</li>
+<li>Jenkins Crawler should always get latest version (pertinent to ModuleManager)</li>
+</ul>
+</li>
+<li>Other Changes
+
+<ul>
+<li>Removed Nimbus UI</li>
+<li>Tinker Time now updates itself using KerbalStuff, rather than Github</li>
+<li>ModuleManager has been further integrated as a mod, (as opposed to a special entity)</li>
+<li>Mod list file no longer needs to save image URLs and enabled state</li>
+<li>Refactor Unit Test resource loading</li>
+<li>Major general refactor</li>
+</ul>
+</li>
+</ul>
+
+<h5>
+<a id="v12" class="anchor" href="#v12" aria-hidden="true"><span class="octicon octicon-link"></span></a>v1.2</h5>
+
+<ul>
+<li>New Features
+
+<ul>
+<li>Automatically check for TinkerTime update, and prompt user if new version is available</li>
+<li>Mod Page Caching to now persist for 10 minutes (rather than just for a single workflow)</li>
+</ul>
+</li>
+<li>Fixes
+
+<ul>
+<li>Update Github Crawler to match new DOM</li>
+<li>Github Crawler to skip latest release if it does not contain a user-uploaded asset</li>
+<li>Fix issue where illegal file characters were causing some mods to fail to download</li>
+<li>"Update All" button to only update mods which have an update available</li>
+</ul>
+</li>
+</ul>
+
+<h5>
+<a id="v111" class="anchor" href="#v111" aria-hidden="true"><span class="octicon octicon-link"></span></a>v1.1.1</h5>
+
+<ul>
+<li>Updated for KerbalStuff content-provider change</li>
+</ul>
+
+<h5>
+<a id="v11" class="anchor" href="#v11" aria-hidden="true"><span class="octicon octicon-link"></span></a>v1.1</h5>
+
+<ul>
+<li>New Features
+
+<ul>
+<li>KSP Launcher (supports Windows, OSX, and Linux)
+
+<ul>
+<li>On Windows, will ask user if they wish to use 64-bit, otherwise, automatic</li>
+</ul>
+</li>
+<li>Add Mod Import/Export Functionality (to share mod packs)</li>
+<li>Add option to set windowed mode of KSP to borderless</li>
+<li>Mod Host and Version is now displayed in Mod View</li>
+<li>Support for Github Mods with multiple assets per release</li>
+</ul>
+</li>
+<li>Fixes
+
+<ul>
+<li>Overhauled Zip Archive Analysis for more accurate mod installations</li>
+<li>Set maximum size for Mod Image preview</li>
+<li>Fix Typo in TinkerTime Options Window</li>
+<li>Fix highlighting of toolbar buttons after clicking</li>
+</ul>
+</li>
+</ul>
+
+<h5>
+<a id="v10" class="anchor" href="#v10" aria-hidden="true"><span class="octicon octicon-link"></span></a>v1.0</h5>
+
+<ul>
+<li>New Features:
+
+<ul>
+<li>Module Manager is now considered a (non-removable) mod</li>
+<li>Can now add local mod zip files (non-updateable)</li>
+<li>Now fully using glyphicons (license in about)</li>
+<li>Windows are now centered in the screen</li>
+<li>Button to export JSON data for enabled mods</li>
+<li>Will now delete old image caches and mods</li>
+<li>Tinker Time Updater is simplified</li>
+<li>When mod update is available, add message to mod description</li>
+</ul>
+</li>
+<li>Fixes:
+
+<ul>
+<li>Fixed issue where variations of supported domains were not supported. e.g. beta.kerbalstuff.com</li>
+<li>Fixed issue where mod list would not always load on startup</li>
+<li>Fixed an issue where a module with a dependent mod would not be disabled even
+if the dependent mod was disabled</li>
+<li>Improve Github mod URL analysis robustness</li>
+<li>Fix Json caching for Jenkins crawler (less annoyance for <a href="https://github.com/sarbian">sarbian</a>)</li>
+</ul>
+</li>
+</ul>
+
+<h5>
+<a id="v07" class="anchor" href="#v07" aria-hidden="true"><span class="octicon octicon-link"></span></a>v0.7</h5>
+
+<ul>
+<li>KerbalStuff Mod Support</li>
+<li>Graphical Toolbar</li>
+<li>New GUI Theme (Nimbus)</li>
+<li>Overhauled Mod Archive Inspector (better mod compatability)</li>
+<li>Supported KSP Version will be disaplyed for each mod</li>
+<li>Automated JAR file generation with Gradle</li>
+<li>Travis-CI integration for automated testing</li>
+</ul>
+
+<h5>
+<a id="v06" class="anchor" href="#v06" aria-hidden="true"><span class="octicon octicon-link"></span></a>v0.6</h5>
+
+<ul>
+<li>Github Mod Support</li>
+<li>GUI Mod List is to maintain proper order</li>
+<li>on start, update Module manager, and check for Mod updates
+
+<ul>
+<li>Can be Disabled through new Options Window</li>
+</ul>
+</li>
+<li>Improvements to Mod Archive Inspector</li>
+<li>Improvements to Background Task Processor</li>
+<li>Each KSP Installation to have its own separate mods configuration</li>
+<li>Various other under-the-hood improvements</li>
+</ul>
+
+<h5>
+<a id="v05" class="anchor" href="#v05" aria-hidden="true"><span class="octicon octicon-link"></span></a>v0.5</h5>
+
+<ul>
+<li>Initial Release</li>
+<li>Curse.com support</li>
+</ul>
+
+<h3>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span class="octicon octicon-link"></span></a>License</h3>
+
+<p><a href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png"></a><br>Tinker Time by Andrew O'Hara is licensed under a <a href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.<br>Based on a work at <a href="https://github.com/oharaandrew314/TinkerTime"></a><a href="https://github.com/oharaandrew314/TinkerTime">https://github.com/oharaandrew314/TinkerTime</a>.</p>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/oharaandrew314/TinkerTime/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/oharaandrew314/TinkerTime/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/oharaandrew314/TinkerTime"></a> is maintained by <a href="https://github.com/oharaandrew314">oharaandrew314</a>.</p>
+
+          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
+    </div>
+
+  
+  </body>
+</html>
