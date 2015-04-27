@@ -1,0 +1,10 @@
+/bin/
+
+Commmon/
+/build/
+*/Thumbs.db
+/res/
+.classpath
+.gradle
+.project
+.settings/
